@@ -22,9 +22,9 @@ except IndexError:
 
 
 def update_lambda_code(sub_folder=first_arg):
-    if sub_folder in ('tensor', 'tensoriot'):
-        sub_folder = 'tensoroffice'
-        lambda_name = "tensor_office"
+    if sub_folder in ('demo_cli',):
+        sub_folder = 'decmo_cli'
+        lambda_name = "ask-custom-testing-cli-default"
     else:
         logger.error("No input name was given. Did not update lambda.")
         return 0
@@ -34,19 +34,25 @@ def update_lambda_code(sub_folder=first_arg):
     zip_name = 'archive.zip'
 
     # Copy files in project directory to venv site-packages
-    call(['cp', '-r', '.', '../env/lib/python3.6/site-packages/'])
+    # call(['cp', '-r', '.', '../env/lib/python3.6/site-packages/'])
+    call(['cp', 'lambda_function.py', 'packages/'])
+    call(['cp', '-r', 'skill', 'packages/'])
 
     # file path
     abspath = os.path.abspath(__file__)
+    print("abspath: {}".format(abspath))
 
     # project directory name
     dir_name = os.path.dirname(abspath)
+    print("dirname: {}".format(dir_name))
 
     # Create a list of all files/folders in project directory
-    files = os.listdir(dir_name)
+    # files = os.listdir(dir_name)
 
     # Path to site-packages
-    site_package = os.path.relpath('../env/lib/python3.6/site-packages', dir_name)
+    # site_package = os.path.relpath('packages/', dir_name)
+    site_package = os.path.abspath('packages')
+    print("site_packages: {}".format(site_package))
 
     # Change directory to site-packages
     os.chdir(site_package)
@@ -63,11 +69,13 @@ def update_lambda_code(sub_folder=first_arg):
 
     # remove zip file
     call(['rm', zip_name])
+    call(['rm', "lambda_function.py"])
+    call(['rm', '-r', 'skill'])
 
     # remove project files from site-packages
-    for file in files:
-        if file != '__init__.py':
-            call(['rm', "-rf", file])
+    # for file in files:
+    #     if file != '__init__.py':
+    #         call(['rm', "-rf", file])
 
     print("Done!")
 
