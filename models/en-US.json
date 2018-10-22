@@ -35,7 +35,41 @@
             "say hello world",
             "how are ya"
           ]
-        }
+        },
+        {
+          "name": "Testing",
+          "slots": [
+            {
+              "name": "test_phrase",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "understand me {test_phrase}"
+          ]
+        },
+        {
+            "name": "CompanyFact",
+            "slots": [],
+            "samples": [
+              "to give me a cool fact about the company",
+              "what can you tell me about the company",
+              "tell me a cool fact about the company"
+            ]
+          },
+          {
+            "name": "EmployeeFact",
+            "slots": [
+              {
+                "name": "employee",
+                "type": "AMAZON.Person"
+              }
+            ],
+            "samples": [
+              "tell me something about {employee}",
+              "what can you tell me about {employee}"
+            ]
+          }
       ]
     }
   }
