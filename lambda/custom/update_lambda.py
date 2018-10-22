@@ -20,25 +20,43 @@ except IndexError:
     logger.info("No argument given.")
     first_arg = None
 
+# ---- EDIT THE VARS BELOW TO MATCH YOUR PROJECT ----
+# Relative path to your VirtualEnvs site-packages
+PATH_TO_SITE_PACKAGES = "../../../env/lib/python3.6/site-packages/"
 
-def update_lambda_code(sub_folder=first_arg):
-    if sub_folder in ('demo_cli',):
-        sub_folder = 'decmo_cli'
-        lambda_name = "ask-custom-testing-cli-default"
+# Arbitrary name for the zip file sent to S3
+ZIP_NAME = 'archive.zip'
+
+# File for lambda entry point
+LAMBDA_FILE = "lambda_function.py"
+
+# Folder that contains all the skill logic
+SKILL_FOLDER = "skill"
+
+SKILL_CONFIG = {
+    "demo_cli": {
+        "SUB_FOLDER": "demo_cli",
+        "LAMBDA_NAME": "ask-custom-testing-cli-default"
+    }
+}
+
+
+def update_lambda_code(key=first_arg):
+    if key in SKILL_CONFIG:
+        sub_folder = SKILL_CONFIG[key]["SUB_FOLDER"]
+        lambda_name = SKILL_CONFIG[key]["LAMBDA_NAME"]
     else:
         logger.error("No input name was given. Did not update lambda.")
         return 0
 
     code_folder_in_s3 = 's3://alexalexacode/'+sub_folder+'/'
     s3_bucket_name = 'alexalexacode'
-    zip_name = 'archive.zip'
 
     # Copy files in project directory to venv site-packages
-    # call(['cp', '-r', '.', '../env/lib/python3.6/site-packages/'])
-    call(['cp', 'lambda_function.py', 'packages/'])
-    call(['cp', '-r', 'skill', 'packages/'])
+    call(['cp', LAMBDA_FILE, PATH_TO_SITE_PACKAGES])
+    call(['cp', '-r', SKILL_FOLDER, PATH_TO_SITE_PACKAGES])
 
-    # file path
+    # __file__ path
     abspath = os.path.abspath(__file__)
     print("abspath: {}".format(abspath))
 
@@ -47,35 +65,30 @@ def update_lambda_code(sub_folder=first_arg):
     print("dirname: {}".format(dir_name))
 
     # Create a list of all files/folders in project directory
-    # files = os.listdir(dir_name)
+    files = os.listdir(dir_name)
+    print("files: {}".format(files))
 
     # Path to site-packages
-    # site_package = os.path.relpath('packages/', dir_name)
-    site_package = os.path.abspath('packages')
+    site_package = os.path.relpath(PATH_TO_SITE_PACKAGES, dir_name)
     print("site_packages: {}".format(site_package))
 
     # Change directory to site-packages
     os.chdir(site_package)
 
     # Creates a Zip file
-    call(['zip', '-r', zip_name, '.'])
+    call(['zip', '-r', ZIP_NAME, '.'])
 
     # Copies Zip file to S3
-    call(['aws', 's3', 'cp', zip_name, code_folder_in_s3])
+    call(['aws', 's3', 'cp', ZIP_NAME, code_folder_in_s3])
 
     # Updates Lambda with new zip in S3
     call(['aws', 'lambda', 'update-function-code', '--function-name',
-          lambda_name, '--s3-bucket', s3_bucket_name, '--s3-key', sub_folder+'/'+zip_name])
+          lambda_name, '--s3-bucket', s3_bucket_name, '--s3-key', sub_folder+'/'+ZIP_NAME])
 
     # remove zip file
-    call(['rm', zip_name])
-    call(['rm', "lambda_function.py"])
-    call(['rm', '-r', 'skill'])
-
-    # remove project files from site-packages
-    # for file in files:
-    #     if file != '__init__.py':
-    #         call(['rm', "-rf", file])
+    call(['rm', ZIP_NAME])
+    call(['rm', LAMBDA_FILE])
+    call(['rm', '-r', SKILL_FOLDER])
 
     print("Done!")
 
