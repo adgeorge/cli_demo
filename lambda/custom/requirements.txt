@@ -5,7 +5,7 @@ ask-sdk-model==1.2.0
 awscli==1.16.38
 boto3==1.9.28
 botocore==1.12.28
-certifi==2018.10.15
+certifi==2022.12.7
 chardet==3.0.4
 colorama==0.3.9
 docutils==0.14
